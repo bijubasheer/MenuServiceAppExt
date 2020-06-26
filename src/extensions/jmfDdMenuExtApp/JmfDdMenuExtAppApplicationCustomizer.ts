@@ -136,13 +136,13 @@ export default class JmfDdMenuExtAppApplicationCustomizer
     .then((response: HttpClientResponse) => {  
       return response.text();  
     }) 
-    .then(jsonResponse => {  
-      //console.log(jsonResponse);  
+    .then(menuHTML => {  
+      //console.log(menuHTML);  
       this._topPlaceholder.domElement.innerHTML = `
       <div class="no-index">
-        ${jsonResponse}
+        ${menuHTML}
       </div>`;
-      return jsonResponse;  
+      return menuHTML;  
     }, (err: any): void => {
       // handle error here
       console.log(err + "!");
