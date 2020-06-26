@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Elements xmlns="http://schemas.microsoft.com/sharepoint/">
+    <CustomAction
+        Title="JmfDdMenuExtApp"
+        Location="ClientSideExtension.ApplicationCustomizer"
+        ClientSideComponentId="57557871-fbf5-4ff8-9276-c1ce98ef6bac"
+        ClientSideComponentProperties="{&quot;testMessage&quot;:&quot;Test message&quot;}">
+    </CustomAction>
+</Elements>

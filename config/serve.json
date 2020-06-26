@@ -1,0 +1,31 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/core-build/serve.schema.json",
+  "port": 4321,
+  "https": true,
+  "serveConfigurations": {
+    "default": {
+      "pageUrl": "https://jmfdev.sharepoint.com/SitePages/Target-Example.aspx",
+      "customActions": {
+        "57557871-fbf5-4ff8-9276-c1ce98ef6bac": {
+          "location": "ClientSideExtension.ApplicationCustomizer",
+          "properties": {
+            "Top": "Menu Service goes here",
+            "Bottom": "Footer goes here"
+          }
+        }
+      }
+    },
+    "jmfDdMenuExtApp": {
+      "pageUrl": "https://jmfdev.sharepoint.com/SitePages/Target-Example.aspx",
+      "customActions": {
+        "57557871-fbf5-4ff8-9276-c1ce98ef6bac": {
+          "location": "ClientSideExtension.ApplicationCustomizer",
+          "properties": {
+            "Top": "Menu Service goes here",
+            "Bottom": "Footer goes here"
+          }
+        }
+      }
+    }
+  }
+}
