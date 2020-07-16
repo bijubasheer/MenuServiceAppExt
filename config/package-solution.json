@@ -6,6 +6,12 @@
     "version": "1.0.0.2",
     "includeClientSideAssets": true,
     "isDomainIsolated": false,
+    "webApiPermissionRequests": [
+      {
+        "resource": "MenuServiceAzFn",
+        "scope": "user_impersonation"
+      }
+    ],
     "features": [
       {
         "title": "Application Extension - Deployment of custom action.",
