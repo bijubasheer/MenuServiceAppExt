@@ -4,7 +4,7 @@
   "https": true,
   "serveConfigurations": {
     "default": {
-      "pageUrl": "https://jmfdev.sharepoint.com/SitePages/Target-Example.aspx",
+      "pageUrl": "https://jmfamilystage.sharepoint.com/sites/DealerDaily/SitePages/Departments.aspx",
       "customActions": {
         "57557871-fbf5-4ff8-9276-c1ce98ef6bac": {
           "location": "ClientSideExtension.ApplicationCustomizer",
@@ -16,7 +16,7 @@
       }
     },
     "jmfDdMenuExtApp": {
-      "pageUrl": "https://jmfdev.sharepoint.com/SitePages/Target-Example.aspx",
+      "pageUrl": "https://jmfamilystage.sharepoint.com/sites/DealerDaily/SitePages/Departments.aspx",
       "customActions": {
         "57557871-fbf5-4ff8-9276-c1ce98ef6bac": {
           "location": "ClientSideExtension.ApplicationCustomizer",

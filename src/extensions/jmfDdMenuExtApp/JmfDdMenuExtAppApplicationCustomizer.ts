@@ -12,18 +12,6 @@ import styles from './AppCustomizer.module.scss';
 import * as strings from 'JmfDdMenuExtAppApplicationCustomizerStrings';
 import {AadHttpClient, HttpClient, IHttpClientOptions, HttpClientResponse } from '@microsoft/sp-http';
 
-const msalConfig = {
-        auth: {
-            clientId: 'bf6e85a4-877c-4957-bfcc-c7d83200d65b'
-        }
-    };
-const msalInstance = new Msal.UserAgentApplication(msalConfig);
-msalInstance.handleRedirectCallback((error, response) => {
-        // handle redirect response or error
-        console.log("In handleRedirectCallback");
-         console.log(JSON.stringify(error));
-         console.log(JSON.stringify(response));
-    });
 const LOG_SOURCE: string = 'JmfDdMenuExtAppApplicationCustomizer';
 
 /**
@@ -59,7 +47,8 @@ export default class JmfDdMenuExtAppApplicationCustomizer
   }
 
   private _renderPlaceHolders(): void {
-    console.log("HelloWorldApplicationCustomizer._renderPlaceHolders()");
+    console.log("MenuServiceExtension._renderPlaceHolders()");
+
     console.log(
       "Available placeholders: ",
       this.context.placeholderProvider.placeholderNames
@@ -117,61 +106,24 @@ export default class JmfDdMenuExtAppApplicationCustomizer
     }
   }
 
+  private ClickMenu(e) {
+    let currentDealer = document.getElementById('menu-context').firstElementChild.firstElementChild.firstElementChild.textContent;
+    console.log(e);
+    console.log(currentDealer);
+  }
   
   private _onDispose(): void {
-    console.log('[HelloWorldApplicationCustomizer._onDispose] Disposed custom top and bottom placeholders.');
+    console.log('[MenuServiceExtension._onDispose] Disposed custom top and bottom placeholders.');
   }
-  private makeRequest(value1: string, value2: string, value3: string): Promise<any> {
-
-    
-    //const postURL = "https://set.api.jmfamily.com/dd-gwmenusvc-sys/v1/api/menu";
-    const postURL = "https://cors-anywhere.herokuapp.com/https://set.api.jmfamily.com/dd-gwmenusvc-sys/v1/api/menu";
-    // const postURL = "https://cors-anywhere.herokuapp.com/https://set.qa.api.jmfamily.com/dd-gwmenusvc-sys/v1/api/menu";
-    const body: string = '{"NameId":"conkqyg@JM","FirstName":"Biju","LastName":"Basheer","Spin":"","SETNumber":"09159","CallerName":"Sharepoint","BrowserIE8": "False"}';
-    
-    const requestHeaders: Headers = new Headers();
-    requestHeaders.append('Content-type', 'application/json');
-    //requestHeaders.append('Access-Control-Request-Method', 'POST');
-    //requestHeaders.append('Cache-Control', 'no-cache');
-    //For an OAuth token
-    requestHeaders.append('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IlNzWnNCTmhaY0YzUTlTNHRycFFCVEJ5TlJSSSIsImtpZCI6IlNzWnNCTmhaY0YzUTlTNHRycFFCVEJ5TlJSSSJ9.eyJhdWQiOiJhcGk6Ly9kY2Y3MDc2Ny1kYzZlLTRlMjAtODk2NC03ZjQ3ODAwNWFlM2UiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9lMmJhNjczYS1iNzgyLTRmNDQtYjBiNS05M2RhOTAyNTgyMDAvIiwiaWF0IjoxNTkzMjA2NjY5LCJuYmYiOjE1OTMyMDY2NjksImV4cCI6MTU5MzIxMDU2OSwiYWlvIjoiRTJCZ1lQamo1L1BTS3YrV1hmaXF4VnM0a3BuRkFRPT0iLCJhcHBpZCI6ImJmNmU4NWE0LTg3N2MtNDk1Ny1iZmNjLWM3ZDgzMjAwZDY1YiIsImFwcGlkYWNyIjoiMSIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0L2UyYmE2NzNhLWI3ODItNGY0NC1iMGI1LTkzZGE5MDI1ODIwMC8iLCJvaWQiOiI4NTZhYmFmMi0wYWRjLTRmYjQtYWZjNy1jN2NiM2I5ZDE0MDYiLCJyb2xlcyI6WyJNZW51U2VydmljZXMiXSwic3ViIjoiODU2YWJhZjItMGFkYy00ZmI0LWFmYzctYzdjYjNiOWQxNDA2IiwidGlkIjoiZTJiYTY3M2EtYjc4Mi00ZjQ0LWIwYjUtOTNkYTkwMjU4MjAwIiwidXRpIjoiTDFHMFZpeUlDMEd3NHg1S2RLQ0NBUSIsInZlciI6IjEuMCJ9.lUsttIWjvT0uADDdNKXjzyNbwQuNhQmQ3NcK0P5U3QpVzZbW0g-fJh1nr6oAKmteCPc-I5c4Ded7yQSOOrHzsRL8OgZT5y4nghMHs3D1dIHRYJxOHM5ONGZBSR8lQcIIzMjB8DzQu_Jp4BKFbbJq9sgmeV8Tae1A5WQr_PHwpb_mhruRO6IGbhr-C1FeyhQCbQcIr16lkW4nt3x-Cx_vwxFQNIJspHx2BUb7yzSoSlLx8NRwQjFsQz-6H2AbMJ7_1m81rnRcrDgbVeo-dKFhrP51P7_uM5DwaTIerI3yRSbe1zDRGYh7GXqW1RE8ZZY44VggJ9qq5DGRPR1PGvbkJg');
-    
-    
-    const httpClientOptions: IHttpClientOptions = {
-      body: body,
-      headers: requestHeaders,
-      mode: "cors",
-      method: "POST"
-    };
-    
-    console.log("About to make API request.");
-    
-    return this.context.httpClient.post(postURL, HttpClient.configurations.v1, httpClientOptions)
-    .then((response: HttpClientResponse) => {  
-      return response.text();  
-    }) 
-    .then(menuHTML => {  
-      //console.log(menuHTML);  
-      this._topPlaceholder.domElement.innerHTML = `
-      <div class="no-index">
-        ${menuHTML}
-      </div>`;
-      return menuHTML;  
-    }, (err: any): void => {
-      // handle error here
-      console.log(err + "!");
-    });
-      
-  }
+  
 
   private CallAzureFunction(): Promise<any> {
 
-    
-    //const postURL = "https://set.api.jmfamily.com/dd-gwmenusvc-sys/v1/api/menu";
-    const postURL = "https://menuserviceazfn.azurewebsites.net/api/GetMenu?code=uryuQaUpeJRt9RZbFava1nOOPQGmyfdEoch9gMf/o7CDrZ/USYuI5A==";
-    // const postURL = "https://cors-anywhere.herokuapp.com/https://set.qa.api.jmfamily.com/dd-gwmenusvc-sys/v1/api/menu";
-    const body: string = '{"NameId":"conkqyg@JM","FirstName":"Biju","LastName":"Basheer","Spin":"","SETNumber":"09159","CallerName":"Sharepoint","BrowserIE8": "False"}';
-    
+    //const postURL = "https://menuserviceazfn.azurewebsites.net/api/GetMenu?code=uryuQaUpeJRt9RZbFava1nOOPQGmyfdEoch9gMf/o7CDrZ/USYuI5A==";
+    const postURL = "https://setmenuservice.azurewebsites.net/api/GetMenu?code=5ju70xjDJywCDUTI/xxxE/olwvdjZ4cRbzkiTWtwbxCrDi43Crg6jA==";
+    //const postURL = "https://set.dev.api.jmfamily.com/dd-gwmenusvc-sys/v1/api/menu";
+    //const body: string = '{"NameId":"conkqyg@JM","FirstName":"Biju","LastName":"Basheer","Spin":"","SETNumber":"09159","AppName":"VinSight","CallerName":"SharePoint","BrowserIE8": "False"}';
+    const body: string = '{"NameId":"QAALLPAM@JM","FirstName":"QAALLPAM","LastName":"QAALLPAM","Spin":"","SETNumber":"09159","CallerName":"VinSight","BrowserIE8":"True"}';
     const requestHeaders: Headers = new Headers();
     requestHeaders.append('Content-type', 'application/json');
     
@@ -184,7 +136,9 @@ export default class JmfDdMenuExtAppApplicationCustomizer
     console.log("About to make API request.");
     
     return this.context.aadHttpClientFactory
-      .getClient('89759aa2-8b1d-4e17-b0e3-56f9bcf71f71')
+      //.getClient('89759aa2-8b1d-4e17-b0e3-56f9bcf71f71')
+      .getClient('54e0f8b3-971e-4f5d-90b0-083e29b433ac') //Azure Fn
+      //.getClient('1148b2ca-eded-4ea7-9f1e-4cce4bd47109') //Menu Service
       .then((client: AadHttpClient): void => {
         client
           .post(postURL, AadHttpClient.configurations.v1, httpClientOptions)
@@ -197,10 +151,14 @@ export default class JmfDdMenuExtAppApplicationCustomizer
       <div class="no-index">
         ${menuHTML}
       </div>`;
+
+      let clickEvent= document.getElementById('DealershipnavbarDropdown');
+      clickEvent.addEventListener("click", (e: Event) => this.ClickMenu(e));
+
       return menuHTML;  
     }, (err: any): void => {
       // handle error here
-      console.log(err + "!");
+      console.log(err );
     });
       });
 /*

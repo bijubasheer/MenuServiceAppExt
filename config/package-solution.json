@@ -3,12 +3,12 @@
   "solution": {
     "name": "jm-family-dealer-daily-menu-ext-client-side-solution",
     "id": "1320d095-be1c-4b2f-b9ac-f663d47de3f5",
-    "version": "1.0.0.2",
+    "version": "1.0.0.12",
     "includeClientSideAssets": true,
     "isDomainIsolated": false,
     "webApiPermissionRequests": [
       {
-        "resource": "MenuServiceAzFn",
+        "resource": "setmenuservice",
         "scope": "user_impersonation"
       }
     ],
@@ -17,7 +17,7 @@
         "title": "Application Extension - Deployment of custom action.",
         "description": "Deploys a custom action with ClientSideComponentId association",
         "id": "9d3e2b22-1cca-41f4-b432-e61f844c8924",
-        "version": "1.0.0.2",
+        "version": "1.0.0.12",
         "assets": {
           "elementManifests": [
             "elements.xml"
