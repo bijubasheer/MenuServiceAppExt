@@ -11,7 +11,16 @@
       ]
     }
   },
-  "externals": {},
+  "externals": {
+    "jquery": {
+      "path": "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js",
+      "globalName": "jQuery"
+   },
+   "myScript":{
+     "path": "./src/HelperJS/Custom.js",
+     "globalName": "MyScript"
+   }
+  },
   "localizedResources": {
     "JmfDdMenuExtAppApplicationCustomizerStrings": "lib/extensions/jmfDdMenuExtApp/loc/{locale}.js"
   }
