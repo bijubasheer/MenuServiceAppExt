@@ -3,7 +3,7 @@
   "solution": {
     "name": "jm-family-dealer-daily-menu-ext-client-side-solution",
     "id": "1320d095-be1c-4b2f-b9ac-f663d47de3f5",
-    "version": "1.0.0.13",
+    "version": "1.0.0.15",
     "includeClientSideAssets": true,
     "isDomainIsolated": false,
     "webApiPermissionRequests": [
