@@ -11,6 +11,8 @@
     "test": "gulp test"
   },
   "dependencies": {
+    "set-dd-info-library": "^0.0.1",
+    "set-dd-dealer-info-library": "^0.0.1",
     "@microsoft/decorators": "1.8.1",
     "@microsoft/sp-application-base": "1.8.1",
     "@microsoft/sp-core-library": "1.8.1",

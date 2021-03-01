@@ -1,16 +1,20 @@
 import * as Msal from "msal";
 import { override } from '@microsoft/decorators';
-import { Log } from '@microsoft/sp-core-library';
+import { Log, ServiceScope } from '@microsoft/sp-core-library';
 import {
   BaseApplicationCustomizer,
   PlaceholderContent,
   PlaceholderName,
   ApplicationCustomizerContext
 } from '@microsoft/sp-application-base';
+
 import styles from './AppCustomizer.module.scss';
 import * as strings from 'JmfDdMenuExtAppApplicationCustomizerStrings';
-import { AadHttpClient, HttpClient, IHttpClientOptions, HttpClientResponse, HttpClientConfiguration } from '@microsoft/sp-http';
+import { AadHttpClient, HttpClient, IHttpClientOptions, HttpClientResponse, HttpClientConfiguration, MSGraphClient  } from '@microsoft/sp-http';
 import * as $ from 'jquery';
+import {DealerInfoService, IDealerInfoService} from 'set-dd-dealer-info-library/lib/libraries/dealerInfoLibrary/DealerInfoLibraryLibrary';
+import { IUserItem } from 'set-dd-dealer-info-library/lib/libraries/dealerInfoLibrary/IUserItem';
+import { ISETDealerInfo } from 'set-dd-dealer-info-library/lib/libraries/dealerInfoLibrary/ISETDealerInfo';
 
 require('myScript'); //Add a JS file
 declare function setCookie(cname, cvalue, exdays): any;
@@ -35,11 +39,16 @@ export interface IJmfDdMenuExtAppApplicationCustomizerProperties {
 /** A Custom Action which can be run during execution of a Client Side Application */
 export default class JmfDdMenuExtAppApplicationCustomizer
   extends BaseApplicationCustomizer<IJmfDdMenuExtAppApplicationCustomizerProperties> {
-
+  //private graphServiceInstance : IDealerInfoService;
   private _topPlaceholder: PlaceholderContent | undefined;
   private _bottomPlaceholder: PlaceholderContent | undefined;
-  private ordersClient: AadHttpClient;
   private myContext: ApplicationCustomizerContext;
+  //private clientId:string = '1148b2ca-eded-4ea7-9f1e-4cce4bd47109'; //CORPSTG1
+  private clientId:string = 'b045f213-4f67-4081-a843-c49af374fab0'; //SET Dealer Daily STG
+  private menuAPIUrlBase = 'https://test-menuservice-a-webapi.aws.jmfamily.com/api/menu/Corpstg1dealerportal'
+
+  private dealerData: ISETDealerInfo = null;
+  private dealerInfoService: IDealerInfoService;
 
   @override
   public onInit(): Promise<void> {
@@ -50,15 +59,21 @@ export default class JmfDdMenuExtAppApplicationCustomizer
     this.context.placeholderProvider.changedEvent.add(this, this._renderPlaceHolders);
     this.myContext = this.context;
 
-    $("#spSiteHeader").hide();
+    document.getElementById("spSiteHeader").style.display = "none";
+
+    //const serviceScope: ServiceScope = this.context.serviceScope.getParent();
+    this.dealerInfoService = this.context.serviceScope.consume(DealerInfoService.serviceKey as any) as DealerInfoService;
+
+      // serviceScope.whenFinished((): void => {
+      //   this.dealerInfoService = serviceScope.consume(DealerInfoService.serviceKey as any) as DealerInfoService;
+      // });
 
     return Promise.resolve<void>();
-
   }
 
+  
   private _renderPlaceHolders(): void {
     console.log("MenuServiceExtension._renderPlaceHolders()");
-
     console.log(
       "Available placeholders: ",
       this.context.placeholderProvider.placeholderNames
@@ -84,6 +99,7 @@ export default class JmfDdMenuExtAppApplicationCustomizer
         if (!topString) {
           topString = "(Top property was not defined.)";
         }
+        
 
         if (this._topPlaceholder.domElement) {
           this.GetMenu()
@@ -91,7 +107,8 @@ export default class JmfDdMenuExtAppApplicationCustomizer
               this._topPlaceholder.domElement.innerHTML = `
             <div class="${styles.app}">
               ${response}
-            </div>`;
+            </div>
+            `;
             });
 
         }
@@ -121,37 +138,57 @@ export default class JmfDdMenuExtAppApplicationCustomizer
   private _onDispose(): void {
     console.log('[MenuServiceExtension._onDispose] Disposed custom top and bottom placeholders.');
   }
-
-  private async GetSetNumber():Promise<string> {
-    
-    const getURL = "https://set.dev.api.jmfamily.com/dd-gwmenusvc-sys/v1/api/dealerContext?nameId=qaallpam";
+  
+  private async GetUserInfo():Promise<IUserItem> {
+    if(!this.dealerInfoService)
+    {
+      this.dealerInfoService = this.context.serviceScope.consume(DealerInfoService.serviceKey as any) as DealerInfoService;
+    }
+    var userInfo = await this.dealerInfoService.GetUserInfo();
+    // let client = await this.context.msGraphClientFactory.getClient();
+    // let response = await client.api('/me').get();
+    return userInfo;
+  }
+  private async GetDealerInfo(nameId):Promise<ISETDealerInfo> {
+    /*
+    //const getURL = "https://test-menuservice-a-webapi.aws.jmfamily.com/api/menu/Corpstg1dealerportal/dealerContext?nameId=" + nameId;
+    const getURL = "https://set.dev.api.jmfamily.com/dd-gwmenusvc-sys/v1/api/dealerContext?nameId=" + nameId;
     let setNum = "";
      const requestHeaders: Headers = new Headers();
     requestHeaders.append('Content-type', 'application/json');
 
-    console.log("About to get SET Number");
+    console.log("About to get SET Number from within menu service");
 
      let client = await this.context.aadHttpClientFactory
-      .getClient('1148b2ca-eded-4ea7-9f1e-4cce4bd47109');
-      
+      .getClient(this.clientId);
       let response = await client.get(getURL, AadHttpClient.configurations.v1);
-      let text = await response.text();
-      return JSON.parse(text);
-
+      //let text = await response.text();
+      this.dealerData = JSON.parse(await response.text());
+      return this.dealerData;
+    */
+   
+    if(!this.dealerInfoService)
+    {
+      this.dealerInfoService = this.context.serviceScope.consume(DealerInfoService.serviceKey as any) as DealerInfoService;
+    }
+    this.dealerData = await this.dealerInfoService.GetDDInfo(nameId);
+    return this.dealerData;
+   
   }
-  private async GetMenu(setNumber: string = '09159'): Promise<any> {
+  private async GetMenu(): Promise<any> {
 
-    var setNum = await this.GetSetNumber();
-    setCookie('setNumber', setNum, 2);
-    //var setNumber 
+    var  userInfo = await this.GetUserInfo();
+    console.log("userPrincipalName  fetched from library = " + userInfo.userPrincipalName);
     
-    //const postURL = "https://menuserviceazfn.azurewebsites.net/api/GetMenu?code=uryuQaUpeJRt9RZbFava1nOOPQGmyfdEoch9gMf/o7CDrZ/USYuI5A==";
-    //const postURL = "https://setmenuservice.azurewebsites.net/api/GetMenu?code=5ju70xjDJywCDUTI/xxxE/olwvdjZ4cRbzkiTWtwbxCrDi43Crg6jA==";
+    var nameId = "QAALLPAM"; //userInfo.userPrincipalName.replace('corpstg1.jmfamily.com', 'JM');
+    var dealerInfo =  await this.GetDealerInfo("QAALLPAM");
+    var setNum = dealerInfo.setNumber;
+            
     const postURL = "https://set.dev.api.jmfamily.com/dd-gwmenusvc-sys/v1/api/menu";
+    //const postURL = "https://test-menuservice-a-webapi.aws.jmfamily.com/api/menu/Corpstg1dealerportal";
     
-    //const body: string = '{"NameId":"conkqyg@JM","FirstName":"Biju","LastName":"Basheer","Spin":"","SETNumber":"09159","AppName":"VinSight","CallerName":"Sharepointonline","BrowserIE8": "False"}';
     const body: string = '{"NameId":"QAALLPAM@JM","FirstName":"QAALLPAM","LastName":"QAALLPAM","Spin":"","SETNumber":"' + setNum + '","CallerName":"Sharepointonline","BrowserIE8":"True"}';
-
+    
     const requestHeaders: Headers = new Headers();
     requestHeaders.append('Content-type', 'application/json');
 
@@ -162,12 +199,11 @@ export default class JmfDdMenuExtAppApplicationCustomizer
     };
 
     console.log("About to get Menu.");
-
+    var myClientId;
     return this.context.aadHttpClientFactory
-      //.getClient('89759aa2-8b1d-4e17-b0e3-56f9bcf71f71')
-      //.getClient('54e0f8b3-971e-4f5d-90b0-083e29b433ac') //Azure Fn
-      .getClient('1148b2ca-eded-4ea7-9f1e-4cce4bd47109') //Menu Service
+      .getClient(this.clientId)
       .then((client: AadHttpClient): void => {
+        myClientId = this.clientId;
         client
           .post(postURL, AadHttpClient.configurations.v1, httpClientOptions)
           .then((response: HttpClientResponse) => {
@@ -177,9 +213,9 @@ export default class JmfDdMenuExtAppApplicationCustomizer
             //console.log(menuHTML);
 
             this._topPlaceholder.domElement.innerHTML = `
-      <div class="no-index" id="set-menu-top">
-        ${menuHTML}
-      </div>`;
+              <div class="no-index" id="set-menu-top">
+                ${menuHTML}
+              </div>`;
             $.getScript("https://dp2stg-menu.setdealerdaily.com/Content/Scripts/MenuService-Scripts.min.js", function () {
               console.log("Menus Service Script loaded but not necessarily executed.");
             });
@@ -187,20 +223,16 @@ export default class JmfDdMenuExtAppApplicationCustomizer
           
             let myContext = this.context;
             let myPlaceHolder = this._topPlaceholder;
-            //  let clickEvent= document.getElementById('DealershipnavbarDropdown');
-            //  clickEvent.addEventListener("click", (e: Event) => this.ClickMenu(e));
             
             MyCookieFunction();
 
-            $('.mydealer').on("click", function () {
-              //alert(this.textContent);
-              // debugger;
+            $('.mydealer').on("click", async function () {
+              
               var positionofcolon = this.textContent.indexOf(':');
-              //var dealerEirId = '@Model.Dealer.DealerEirId';
               var dealerName = this.textContent.substring(positionofcolon + 1);
               var setNumber = this.textContent.substring(0, positionofcolon);
-              setCookie('setNumber', setNumber, 2);
-              ChangeDealershipAAD(setNumber, myContext, myPlaceHolder);
+              
+              ChangeDealershipAAD(setNumber, myContext, myPlaceHolder, myClientId);
 
             });
 
@@ -211,7 +243,7 @@ export default class JmfDdMenuExtAppApplicationCustomizer
           });
       });
     
-    function ChangeDealershipAAD(setNumber: string, appContext: ApplicationCustomizerContext, myPlaceHolder: PlaceholderContent) {
+    function ChangeDealershipAAD(setNumber: string, appContext: ApplicationCustomizerContext, myPlaceHolder: PlaceholderContent, myClientId: string) {
       console.log(setNumber + " : Changing dealership!");
       var url = 'https://set.dev.api.jmfamily.com/dd-gwmenusvc-sys/v1/api/postDealerContext';
       const body: string = '{"userId":"QAALLPAM","setNumber":"' + setNumber + '","callerName":"Sharepointonline","AssertionId ":""}';
@@ -223,9 +255,9 @@ export default class JmfDdMenuExtAppApplicationCustomizer
         headers: requestHeaders,
         method: "POST"
       };
-
+      
       appContext.aadHttpClientFactory
-        .getClient('1148b2ca-eded-4ea7-9f1e-4cce4bd47109')
+        .getClient(myClientId)
         .then((client: AadHttpClient): void => {
           client
             .post(url, AadHttpClient.configurations.v1, httpClientOptions)
@@ -233,7 +265,6 @@ export default class JmfDdMenuExtAppApplicationCustomizer
               return response.text();
             })
             .then(stuff => {
-              console.log(stuff);
               location.reload();
             });
         });
